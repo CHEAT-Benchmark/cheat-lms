@@ -1,6 +1,6 @@
 # CHEAT LMS
 
-A high-fidelity simulted LMS for AI academic integrity research. Part of the [CHEAT Benchmark](https://github.com/CHEAT-Benchmark) project.
+A high-fidelity simulated LMS for AI academic integrity research. Part of the [CHEAT Benchmark](https://github.com/CHEAT-Benchmark) project.
 
 ## Overview
 
