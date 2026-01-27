@@ -1,0 +1,75 @@
+name: Submit a Discussion Prompt
+description: Contribute a discussion assignment to the CHEAT LMS
+title: "[Discussion] "
+labels: ["assessment", "discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing a discussion prompt! Please fill out the form below.
+        See the [Discussion Formatting Guide](https://github.com/CHEAT-Benchmark/cheat-lms/blob/main/assessments/formatting-discussion.md) for detailed instructions.
+
+  - type: input
+    id: course
+    attributes:
+      label: Course Code
+      description: Which course is this discussion for? Use an existing code or suggest a new one.
+      placeholder: e.g., PSYCH101, BIO200, HIST150
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: Discussion Title
+      placeholder: e.g., Week 3 Discussion - Ethics in Research
+    validations:
+      required: true
+
+  - type: input
+    id: min_words
+    attributes:
+      label: Minimum Word Count
+      description: Minimum words required for the initial post.
+      placeholder: e.g., 250
+
+  - type: input
+    id: replies_required
+    attributes:
+      label: Replies Required
+      description: How many replies to classmates are required?
+      placeholder: e.g., 2
+
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Discussion Prompt
+      description: The topic and questions for students to discuss.
+      placeholder: |
+        Introduce your discussion topic here. Provide context that helps students engage.
+
+        Consider addressing:
+        1. First question or point to discuss
+        2. Second question or point
+        3. Third question or point
+
+        Be prepared to engage thoughtfully with your classmates' perspectives.
+    validations:
+      required: true
+
+  - type: textarea
+    id: grading
+    attributes:
+      label: Grading Criteria
+      description: How will participation be graded?
+      placeholder: |
+        - Initial Post (60%): Thoughtful response that addresses all questions
+        - Replies (40%): Substantive engagement with classmates
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any other context or information about this discussion?

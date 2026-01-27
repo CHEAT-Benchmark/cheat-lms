@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Quiz Formatting Guide
+    url: https://github.com/CHEAT-Benchmark/cheat-lms/blob/main/assessments/formatting-quiz.md
+    about: Learn how to format quiz questions
+  - name: Essay Formatting Guide
+    url: https://github.com/CHEAT-Benchmark/cheat-lms/blob/main/assessments/formatting-essay.md
+    about: Learn how to format essay assignments
+  - name: Discussion Formatting Guide
+    url: https://github.com/CHEAT-Benchmark/cheat-lms/blob/main/assessments/formatting-discussion.md
+    about: Learn how to format discussion prompts

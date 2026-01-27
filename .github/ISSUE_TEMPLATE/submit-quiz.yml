@@ -1,0 +1,67 @@
+name: Submit a Quiz
+description: Contribute a quiz assessment to the CHEAT LMS
+title: "[Quiz] "
+labels: ["assessment", "quiz"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing a quiz! Please fill out the form below.
+        See the [Quiz Formatting Guide](https://github.com/CHEAT-Benchmark/cheat-lms/blob/main/assessments/formatting-quiz.md) for detailed instructions.
+
+  - type: input
+    id: course
+    attributes:
+      label: Course Code
+      description: Which course is this quiz for? Use an existing code or suggest a new one.
+      placeholder: e.g., PSYCH101, BIO200, HIST150
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: Quiz Title
+      placeholder: e.g., Chapter 3 Review Quiz
+    validations:
+      required: true
+
+  - type: input
+    id: time_limit
+    attributes:
+      label: Time Limit
+      description: How long should students have to complete this quiz?
+      placeholder: e.g., 30 minutes
+
+  - type: input
+    id: points
+    attributes:
+      label: Total Points
+      placeholder: e.g., 100
+
+  - type: textarea
+    id: questions
+    attributes:
+      label: Questions
+      description: |
+        Enter your quiz questions using the format below. Mark correct answers with an asterisk (*).
+      placeholder: |
+        Q1 [10 points] (multiple-choice)
+        What is the capital of France?
+        A) London
+        B) Paris *
+        C) Berlin
+        D) Madrid
+
+        Q2 [10 points] (true-false)
+        The Earth is flat.
+        True
+        * False
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any other context or information about this quiz?

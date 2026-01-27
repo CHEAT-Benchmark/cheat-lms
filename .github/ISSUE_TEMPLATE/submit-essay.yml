@@ -1,0 +1,73 @@
+name: Submit an Essay Assignment
+description: Contribute an essay assignment to the CHEAT LMS
+title: "[Essay] "
+labels: ["assessment", "essay"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing an essay assignment! Please fill out the form below.
+        See the [Essay Formatting Guide](https://github.com/CHEAT-Benchmark/cheat-lms/blob/main/assessments/formatting-essay.md) for detailed instructions.
+
+  - type: input
+    id: course
+    attributes:
+      label: Course Code
+      description: Which course is this essay for? Use an existing code or suggest a new one.
+      placeholder: e.g., PSYCH101, BIO200, HIST150
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: Essay Title
+      placeholder: e.g., Critical Analysis Essay
+    validations:
+      required: true
+
+  - type: input
+    id: min_words
+    attributes:
+      label: Minimum Word Count
+      placeholder: e.g., 500
+
+  - type: input
+    id: max_words
+    attributes:
+      label: Maximum Word Count
+      placeholder: e.g., 1000
+
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Essay Prompt
+      description: The instructions and questions students should address in their essay.
+      placeholder: |
+        Write about your topic here. Include all instructions students need.
+
+        Your essay should:
+        1. First requirement
+        2. Second requirement
+        3. Third requirement
+    validations:
+      required: true
+
+  - type: textarea
+    id: rubric
+    attributes:
+      label: Grading Rubric
+      description: How will this essay be graded? List criteria with percentages.
+      placeholder: |
+        - Thesis (20%): Clear thesis statement that previews the argument
+        - Evidence (30%): Use of credible sources with proper citations
+        - Analysis (30%): Thoughtful examination of the topic
+        - Writing (20%): Clear organization, proper grammar
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any other context or information about this assignment?
