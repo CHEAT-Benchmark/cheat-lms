@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Log In - Canvus LMS{% endblock %}
+
+{% block content %}
+<div class="ic-Login">
+    <div class="ic-Login__container">
+        <div class="ic-Login__header">
+            <h1 class="ic-Login__title">Canvus</h1>
+            <p class="ic-Login__subtitle">Learning Management System</p>
+        </div>
+
+        <form class="ic-Login__form" method="POST" action="{{ url_for('auth.login') }}">
+            <div class="ic-Form-group">
+                <label for="username" class="ic-Label">Username</label>
+                <input type="text" id="username" name="username" class="ic-Input" required autofocus>
+            </div>
+
+            <div class="ic-Form-group">
+                <label for="password" class="ic-Label">Password</label>
+                <input type="password" id="password" name="password" class="ic-Input" required>
+            </div>
+
+            <div class="ic-Form-group">
+                <button type="submit" class="ic-Button ic-Button--primary ic-Button--block">
+                    Log In
+                </button>
+            </div>
+        </form>
+
+        <div class="ic-Login__help">
+            <p>Demo accounts:</p>
+            <ul>
+                <li><strong>jsmith</strong> / student123</li>
+                <li><strong>emartinez</strong> / student123</li>
+                <li><strong>twang</strong> / student123</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

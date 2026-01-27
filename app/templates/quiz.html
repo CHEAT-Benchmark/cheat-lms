@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}{{ assignment.title }} - Canvas LMS{% endblock %}
+
+{% block sidebar %}
+<ul class="ic-NavMenu">
+    <li class="section">
+        <a href="{{ url_for('courses.dashboard') }}">Dashboard</a>
+    </li>
+    <li class="section">
+        <span class="section-header">{{ assignment.course.code }}</span>
+        <a href="{{ url_for('courses.course_view', course_id=assignment.course.id) }}">Home</a>
+        <a href="{{ url_for('courses.course_view', course_id=assignment.course.id) }}" class="active">Assignments</a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="ic-Quiz">
+    <header class="ic-Quiz__header">
+        <nav class="ic-Breadcrumbs">
+            <a href="{{ url_for('courses.course_view', course_id=assignment.course.id) }}">{{ assignment.course.code }}</a>
+            <span class="ic-Breadcrumbs__separator">/</span>
+            <span>{{ assignment.title }}</span>
+        </nav>
+        <h1 class="ic-Quiz__title">{{ assignment.title }}</h1>
+        <div class="ic-Quiz__meta">
+            {% if assignment.time_limit_minutes %}
+            <span class="ic-Quiz__time-limit">Time Limit: {{ assignment.time_limit_minutes }} minutes</span>
+            {% endif %}
+            <span class="ic-Quiz__points">{{ assignment.points }} Points</span>
+            <span class="ic-Quiz__questions">{{ questions|length }} Questions</span>
+        </div>
+    </header>
+
+    {% if submission %}
+    <div class="ic-Quiz__submitted">
+        <div class="ic-Alert ic-Alert--success">
+            <h2>Quiz Submitted</h2>
+            <p>You submitted this quiz on {{ submission.submitted_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+            <p class="ic-Quiz__score">Score: {{ submission.score|int }} / {{ assignment.points }}</p>
+        </div>
+
+        <div class="ic-Quiz__review">
+            <h3>Your Answers</h3>
+            {% for question in questions %}
+            {% set answer = submission.answers.filter_by(question_id=question.id).first() %}
+            <div class="ic-Question ic-Question--review">
+                <div class="ic-Question__header">
+                    <span class="ic-Question__number">Question {{ question.order }}</span>
+                    <span class="ic-Question__points">{{ question.points }} pts</span>
+                </div>
+                <div class="ic-Question__text">{{ question.text }}</div>
+
+                <div class="ic-Question__answer">
+                    <p>Your answer: <strong>{{ answer.answer_text if answer else 'No answer' }}</strong></p>
+                    {% if answer and answer.is_correct %}
+                    <span class="ic-Badge ic-Badge--success">Correct</span>
+                    {% elif answer %}
+                    <span class="ic-Badge ic-Badge--danger">Incorrect</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% else %}
+    <form class="ic-Quiz__form" method="POST" action="{{ url_for('submissions.submit_quiz', assignment_id=assignment.id) }}">
+        <input type="hidden" name="question_timings" id="question_timings" value="{}">
+        <div class="ic-Quiz__questions">
+            {% for question in questions %}
+            <div class="ic-Question">
+                <div class="ic-Question__header">
+                    <span class="ic-Question__number">Question {{ question.order }}</span>
+                    <span class="ic-Question__points">{{ question.points }} pts</span>
+                </div>
+                <div class="ic-Question__text">{{ question.text }}</div>
+
+                {% if question.question_type == 'multiple-choice' %}
+                <div class="ic-Question__choices">
+                    {% for choice in question.choices %}
+                    <label class="ic-Question__choice">
+                        <input type="radio" name="question_{{ question.id }}" value="{{ choice.label }}" required>
+                        <span class="ic-Question__choice-label">{{ choice.label }}.</span>
+                        <span class="ic-Question__choice-text">{{ choice.text }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+
+                {% elif question.question_type == 'true-false' %}
+                <div class="ic-Question__choices">
+                    <label class="ic-Question__choice">
+                        <input type="radio" name="question_{{ question.id }}" value="True" required>
+                        <span class="ic-Question__choice-text">True</span>
+                    </label>
+                    <label class="ic-Question__choice">
+                        <input type="radio" name="question_{{ question.id }}" value="False" required>
+                        <span class="ic-Question__choice-text">False</span>
+                    </label>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="ic-Quiz__submit">
+            <button type="submit" class="ic-Button ic-Button--primary">Submit Quiz</button>
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

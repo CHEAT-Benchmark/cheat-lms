@@ -1,0 +1,19 @@
+TITLE: Week 3 Discussion - Ethical Considerations in Psychology Research
+TYPE: discussion
+MIN_WORDS: 250
+REPLIES_REQUIRED: 2
+
+---
+
+PROMPT:
+Reflect on the ethical guidelines that govern psychological research today. Consider the following questions:
+
+1. Why are institutional review boards (IRBs) important for protecting research participants?
+2. Choose one famous psychology study from the past (such as Milgram's obedience study or Zimbardo's Stanford Prison Experiment) and discuss what ethical concerns it raises.
+3. How do you think researchers should balance the pursuit of scientific knowledge with the protection of participants?
+
+Support your argument with specific examples from the readings or lectures. Be prepared to engage thoughtfully with your classmates' perspectives.
+
+GRADING:
+- Initial post (60%): Thoughtful, well-supported argument that addresses all three questions
+- Replies (40%): Substantive engagement with at least two classmates that adds new perspectives

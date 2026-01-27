@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Canvas LMS{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/canvas.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="ic-app-header">
+        <div class="ic-app-header__main-navigation">
+            <a href="{{ url_for('courses.dashboard') }}" class="ic-app-header__logomark">
+                <span class="ic-avatar">
+                    <span class="ic-avatar__label">C</span>
+                </span>
+            </a>
+            <nav class="ic-app-header__menu-list">
+                <a href="{{ url_for('courses.dashboard') }}" class="ic-app-header__menu-list-link" title="Dashboard">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                    </svg>
+                    <span class="menu-item__text">Dashboard</span>
+                </a>
+                <a href="{{ url_for('courses.dashboard') }}" class="ic-app-header__menu-list-link" title="Courses">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm0 8.18L3.83 9 12 4.82 20.17 9 12 11.18z"/>
+                    </svg>
+                    <span class="menu-item__text">Courses</span>
+                </a>
+            </nav>
+        </div>
+        <div class="ic-app-header__secondary-navigation">
+            {% if current_user.is_authenticated %}
+            <div class="ic-app-header__user-menu">
+                <span class="ic-app-header__user-name">{{ current_user.full_name }}</span>
+                <a href="{{ url_for('auth.logout') }}" class="ic-app-header__logout">Logout</a>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="ic-Layout-wrapper">
+        {% if current_user.is_authenticated %}
+        <div class="ic-Layout-columns">
+            <nav class="ic-app-course-menu" role="navigation">
+                {% block sidebar %}
+                <ul class="ic-NavMenu">
+                    <li class="section">
+                        <a href="{{ url_for('courses.dashboard') }}">Dashboard</a>
+                    </li>
+                </ul>
+                {% endblock %}
+            </nav>
+        {% endif %}
+
+            <main class="ic-Layout-contentMain" role="main">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="ic-flash-messages">
+                    {% for category, message in messages %}
+                    <div class="ic-flash-{{ category }}">
+                        {{ message }}
+                        <button class="ic-flash-close">&times;</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </main>
+
+        {% if current_user.is_authenticated %}
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/telemetry.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+    <script>
+        // Close flash messages
+        document.querySelectorAll('.ic-flash-close').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

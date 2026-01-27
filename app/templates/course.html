@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.name }} - Canvas LMS{% endblock %}
+
+{% block sidebar %}
+<ul class="ic-NavMenu">
+    <li class="section">
+        <a href="{{ url_for('courses.dashboard') }}">Dashboard</a>
+    </li>
+    <li class="section">
+        <span class="section-header">{{ course.code }}</span>
+        <a href="{{ url_for('courses.course_view', course_id=course.id) }}" class="active">Home</a>
+        <a href="{{ url_for('courses.course_view', course_id=course.id) }}">Assignments</a>
+        <a href="#">Grades</a>
+        <a href="#">Syllabus</a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="ic-Course">
+    <header class="ic-Course__header">
+        <h1 class="ic-Course__title">{{ course.name }}</h1>
+        <p class="ic-Course__code">{{ course.code }} &bull; {{ course.term }}</p>
+    </header>
+
+    <div class="ic-Course__content">
+        {% if course.description %}
+        <section class="ic-Course__description">
+            <p>{{ course.description }}</p>
+        </section>
+        {% endif %}
+
+        <section class="ic-Course__assignments">
+            <h2 class="ic-Course__section-title">Assignments</h2>
+
+            {% if assignments %}
+            <ul class="ic-AssignmentList">
+                {% for assignment in assignments %}
+                <li class="ic-AssignmentList__item">
+                    <a href="{{ url_for('assignments.view_assignment', assignment_id=assignment.id) }}" class="ic-AssignmentList__link">
+                        <div class="ic-AssignmentList__icon">
+                            {% if assignment.assignment_type == 'quiz' %}
+                            <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9h-4v4h-2v-4H9V9h4V5h2v4h4v2z"/></svg>
+                            {% elif assignment.assignment_type == 'essay' %}
+                            <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                            {% else %}
+                            <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z"/></svg>
+                            {% endif %}
+                        </div>
+                        <div class="ic-AssignmentList__content">
+                            <h3 class="ic-AssignmentList__title">{{ assignment.title }}</h3>
+                            <p class="ic-AssignmentList__meta">
+                                <span class="ic-AssignmentList__type">{{ assignment.assignment_type|title }}</span>
+                                {% if assignment.points %}
+                                <span class="ic-AssignmentList__points">{{ assignment.points }} pts</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="ic-AssignmentList__status">
+                            {% if assignment_status[assignment.id] == 'submitted' %}
+                            <span class="ic-Badge ic-Badge--success">Submitted</span>
+                            {% else %}
+                            <span class="ic-Badge ic-Badge--neutral">Not Submitted</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="ic-Course__empty">No assignments available.</p>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

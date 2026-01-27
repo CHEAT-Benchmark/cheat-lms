@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Canvas LMS{% endblock %}
+
+{% block sidebar %}
+<ul class="ic-NavMenu">
+    <li class="section">
+        <a href="{{ url_for('courses.dashboard') }}" class="active">Dashboard</a>
+    </li>
+    <li class="section">
+        <span class="section-header">Courses</span>
+        {% for course in courses %}
+        <a href="{{ url_for('courses.course_view', course_id=course.id) }}">{{ course.code }}</a>
+        {% endfor %}
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="ic-Dashboard">
+    <header class="ic-Dashboard__header">
+        <h1 class="ic-Dashboard__title">Dashboard</h1>
+    </header>
+
+    <div class="ic-Dashboard__content">
+        <section class="ic-Dashboard__courses">
+            <h2 class="ic-Dashboard__section-title">My Courses</h2>
+
+            {% if courses %}
+            <div class="ic-DashboardCard__container">
+                {% for course in courses %}
+                <div class="ic-DashboardCard">
+                    <a href="{{ url_for('courses.course_view', course_id=course.id) }}" class="ic-DashboardCard__link">
+                        <div class="ic-DashboardCard__header" style="background-color: {{ ['#2D3B45', '#394B58', '#8B9898', '#35423E', '#7D6E5B'][loop.index0 % 5] }}">
+                            <span class="ic-DashboardCard__header-title">{{ course.code }}</span>
+                        </div>
+                        <div class="ic-DashboardCard__body">
+                            <h3 class="ic-DashboardCard__title">{{ course.name }}</h3>
+                            <p class="ic-DashboardCard__term">{{ course.term }}</p>
+                            {% if course.instructor_name %}
+                            <p class="ic-DashboardCard__instructor">{{ course.instructor_name }}</p>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="ic-Dashboard__empty">You are not enrolled in any courses.</p>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

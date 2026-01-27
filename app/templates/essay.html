@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}{{ assignment.title }} - Canvas LMS{% endblock %}
+
+{% block sidebar %}
+<ul class="ic-NavMenu">
+    <li class="section">
+        <a href="{{ url_for('courses.dashboard') }}">Dashboard</a>
+    </li>
+    <li class="section">
+        <span class="section-header">{{ assignment.course.code }}</span>
+        <a href="{{ url_for('courses.course_view', course_id=assignment.course.id) }}">Home</a>
+        <a href="{{ url_for('courses.course_view', course_id=assignment.course.id) }}" class="active">Assignments</a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="ic-Essay">
+    <header class="ic-Essay__header">
+        <nav class="ic-Breadcrumbs">
+            <a href="{{ url_for('courses.course_view', course_id=assignment.course.id) }}">{{ assignment.course.code }}</a>
+            <span class="ic-Breadcrumbs__separator">/</span>
+            <span>{{ assignment.title }}</span>
+        </nav>
+        <h1 class="ic-Essay__title">{{ assignment.title }}</h1>
+        <div class="ic-Essay__meta">
+            {% if assignment.min_words %}
+            <span class="ic-Essay__word-req">Minimum: {{ assignment.min_words }} words</span>
+            {% endif %}
+            {% if assignment.max_words %}
+            <span class="ic-Essay__word-req">Maximum: {{ assignment.max_words }} words</span>
+            {% endif %}
+            <span class="ic-Essay__points">{{ assignment.points or 100 }} Points</span>
+        </div>
+    </header>
+
+    <div class="ic-Essay__prompt">
+        <h2>Prompt</h2>
+        <div class="ic-Essay__prompt-text">{{ assignment.description }}</div>
+    </div>
+
+    {% if assignment.rubric %}
+    <div class="ic-Essay__rubric">
+        <h2>Rubric</h2>
+        <table class="ic-Table">
+            <thead>
+                <tr>
+                    <th>Criteria</th>
+                    <th>Weight</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in assignment.rubric %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.percentage }}%</td>
+                    <td>{{ item.description }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if submission %}
+    <div class="ic-Essay__submitted">
+        <div class="ic-Alert ic-Alert--success">
+            <h2>Essay Submitted</h2>
+            <p>You submitted this essay on {{ submission.submitted_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+        </div>
+
+        <div class="ic-Essay__review">
+            <h3>Your Submission</h3>
+            <div class="ic-Essay__content">{{ submission.content }}</div>
+        </div>
+    </div>
+
+    {% else %}
+    <form class="ic-Essay__form" method="POST" action="{{ url_for('submissions.submit_essay', assignment_id=assignment.id) }}">
+        <div class="ic-Essay__editor">
+            <label for="content" class="ic-Label">Your Essay</label>
+            <textarea id="content" name="content" class="ic-TextArea ic-TextArea--large" rows="20" placeholder="Write your essay here..." required></textarea>
+            <div class="ic-Essay__word-count">
+                Word count: <span id="word-count">0</span>
+                {% if assignment.min_words %} (minimum: {{ assignment.min_words }}){% endif %}
+                {% if assignment.max_words %} (maximum: {{ assignment.max_words }}){% endif %}
+            </div>
+        </div>
+
+        <div class="ic-Essay__submit">
+            <button type="submit" class="ic-Button ic-Button--primary">Submit Essay</button>
+        </div>
+    </form>
+    {% endif %}
+</div>
+
+{% if not submission %}
+{% block extra_js %}
+<script>
+    const textarea = document.getElementById('content');
+    const wordCountSpan = document.getElementById('word-count');
+
+    function updateWordCount() {
+        const text = textarea.value.trim();
+        const words = text ? text.split(/\s+/).length : 0;
+        wordCountSpan.textContent = words;
+    }
+
+    textarea.addEventListener('input', updateWordCount);
+    updateWordCount();
+</script>
+{% endblock %}
+{% endif %}
+{% endblock %}

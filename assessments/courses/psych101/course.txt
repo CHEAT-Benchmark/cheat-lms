@@ -1,0 +1,5 @@
+CODE: PSYCH101
+NAME: Introduction to Psychology
+DESCRIPTION: An introduction to the scientific study of behavior and mental processes. Topics include research methods, biological bases of behavior, sensation, perception, learning, memory, cognition, development, personality, psychological disorders, and social psychology.
+TERM: Fall 2024
+INSTRUCTOR: Dr. Sarah Mitchell

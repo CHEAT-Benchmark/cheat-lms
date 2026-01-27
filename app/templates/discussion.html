@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}{{ assignment.title }} - Canvas LMS{% endblock %}
+
+{% block sidebar %}
+<ul class="ic-NavMenu">
+    <li class="section">
+        <a href="{{ url_for('courses.dashboard') }}">Dashboard</a>
+    </li>
+    <li class="section">
+        <span class="section-header">{{ assignment.course.code }}</span>
+        <a href="{{ url_for('courses.course_view', course_id=assignment.course.id) }}">Home</a>
+        <a href="{{ url_for('courses.course_view', course_id=assignment.course.id) }}" class="active">Assignments</a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="ic-Discussion">
+    <header class="ic-Discussion__header">
+        <nav class="ic-Breadcrumbs">
+            <a href="{{ url_for('courses.course_view', course_id=assignment.course.id) }}">{{ assignment.course.code }}</a>
+            <span class="ic-Breadcrumbs__separator">/</span>
+            <span>{{ assignment.title }}</span>
+        </nav>
+        <h1 class="ic-Discussion__title">{{ assignment.title }}</h1>
+        <div class="ic-Discussion__meta">
+            {% if assignment.min_words %}
+            <span>Minimum: {{ assignment.min_words }} words</span>
+            {% endif %}
+            {% if assignment.replies_required %}
+            <span>Replies required: {{ assignment.replies_required }}</span>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="ic-Discussion__prompt">
+        <h2>Discussion Prompt</h2>
+        <div class="ic-Discussion__prompt-text">{{ assignment.description }}</div>
+    </div>
+
+    {% if assignment.rubric %}
+    <div class="ic-Discussion__grading">
+        <h3>Grading Criteria</h3>
+        <ul>
+            {% for item in assignment.rubric %}
+            <li><strong>{{ item.name }} ({{ item.percentage }}%)</strong>: {{ item.description }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="ic-Discussion__status">
+        <div class="ic-Discussion__progress">
+            {% if user_post %}
+            <span class="ic-Badge ic-Badge--success">Initial Post: Complete</span>
+            {% else %}
+            <span class="ic-Badge ic-Badge--warning">Initial Post: Required</span>
+            {% endif %}
+
+            {% if assignment.replies_required %}
+            {% if user_replies_count >= assignment.replies_required %}
+            <span class="ic-Badge ic-Badge--success">Replies: {{ user_replies_count }}/{{ assignment.replies_required }}</span>
+            {% else %}
+            <span class="ic-Badge ic-Badge--warning">Replies: {{ user_replies_count }}/{{ assignment.replies_required }}</span>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    {% if not user_post %}
+    <div class="ic-Discussion__new-post">
+        <h2>Create Your Post</h2>
+        <form method="POST" action="{{ url_for('submissions.submit_discussion', assignment_id=assignment.id) }}">
+            <div class="ic-Form-group">
+                <textarea name="content" class="ic-TextArea ic-TextArea--large" rows="10" placeholder="Share your thoughts..." required></textarea>
+                <div class="ic-Discussion__word-count">
+                    Word count: <span id="post-word-count">0</span>
+                    {% if assignment.min_words %} (minimum: {{ assignment.min_words }}){% endif %}
+                </div>
+            </div>
+            <button type="submit" class="ic-Button ic-Button--primary">Post</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="ic-Discussion__posts">
+        <h2>Discussion ({{ posts|length }} posts)</h2>
+
+        {% for post in posts %}
+        <article class="ic-DiscussionPost {% if post.user_id == current_user.id %}ic-DiscussionPost--own{% endif %}">
+            <div class="ic-DiscussionPost__header">
+                <div class="ic-DiscussionPost__avatar">
+                    <span class="ic-avatar">
+                        <span class="ic-avatar__label">{{ post.user.full_name[0] }}</span>
+                    </span>
+                </div>
+                <div class="ic-DiscussionPost__author">
+                    <span class="ic-DiscussionPost__name">{{ post.user.full_name }}</span>
+                    <span class="ic-DiscussionPost__date">{{ post.posted_at.strftime('%b %d, %Y at %I:%M %p') }}</span>
+                </div>
+            </div>
+            <div class="ic-DiscussionPost__content">{{ post.content }}</div>
+
+            {% if post.replies %}
+            <div class="ic-DiscussionPost__replies">
+                {% for reply in post.replies %}
+                <article class="ic-DiscussionPost ic-DiscussionPost--reply {% if reply.user_id == current_user.id %}ic-DiscussionPost--own{% endif %}">
+                    <div class="ic-DiscussionPost__header">
+                        <div class="ic-DiscussionPost__avatar">
+                            <span class="ic-avatar ic-avatar--small">
+                                <span class="ic-avatar__label">{{ reply.user.full_name[0] }}</span>
+                            </span>
+                        </div>
+                        <div class="ic-DiscussionPost__author">
+                            <span class="ic-DiscussionPost__name">{{ reply.user.full_name }}</span>
+                            <span class="ic-DiscussionPost__date">{{ reply.posted_at.strftime('%b %d, %Y at %I:%M %p') }}</span>
+                        </div>
+                    </div>
+                    <div class="ic-DiscussionPost__content">{{ reply.content }}</div>
+                </article>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if user_post and post.user_id != current_user.id %}
+            <div class="ic-DiscussionPost__reply-form">
+                <form method="POST" action="{{ url_for('submissions.submit_discussion', assignment_id=assignment.id) }}">
+                    <input type="hidden" name="parent_id" value="{{ post.id }}">
+                    <textarea name="content" class="ic-TextArea" rows="3" placeholder="Reply to {{ post.user.full_name }}..." required></textarea>
+                    <button type="submit" class="ic-Button ic-Button--secondary ic-Button--small">Reply</button>
+                </form>
+            </div>
+            {% endif %}
+        </article>
+        {% else %}
+        <p class="ic-Discussion__empty">No posts yet. Be the first to share your thoughts!</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    const textarea = document.querySelector('.ic-Discussion__new-post textarea');
+    const wordCountSpan = document.getElementById('post-word-count');
+
+    if (textarea && wordCountSpan) {
+        function updateWordCount() {
+            const text = textarea.value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            wordCountSpan.textContent = words;
+        }
+
+        textarea.addEventListener('input', updateWordCount);
+        updateWordCount();
+    }
+</script>
+{% endblock %}
+{% endblock %}

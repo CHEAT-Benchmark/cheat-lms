@@ -1,0 +1,56 @@
+TITLE: Introduction to Psychology Quiz 1
+TYPE: quiz
+TIME_LIMIT: 30 minutes
+POINTS: 80
+
+---
+
+Q1 [10 points] (multiple-choice)
+What is the primary function of the hippocampus?
+A) Motor control
+B) Memory formation *
+C) Visual processing
+D) Language production
+
+Q2 [10 points] (true-false)
+Classical conditioning was first described by Ivan Pavlov.
+* True
+False
+
+Q3 [10 points] (multiple-choice)
+Which neurotransmitter is most associated with feelings of pleasure and reward?
+A) Serotonin
+B) GABA
+C) Dopamine *
+D) Acetylcholine
+
+Q4 [10 points] (true-false)
+The amygdala is primarily responsible for processing emotions, especially fear.
+* True
+False
+
+Q5 [10 points] (multiple-choice)
+In Freud's structural model of the psyche, which component operates according to the reality principle?
+A) Id
+B) Ego *
+C) Superego
+D) Libido
+
+Q6 [10 points] (multiple-choice)
+Which stage of Piaget's cognitive development theory is characterized by object permanence?
+A) Sensorimotor *
+B) Preoperational
+C) Concrete operational
+D) Formal operational
+
+Q7 [10 points] (true-false)
+Correlation between two variables implies that one causes the other.
+True
+* False
+
+Q8 [10 points] (multiple-choice)
+Which psychologist is most closely associated with the hierarchy of needs?
+A) Sigmund Freud
+B) B.F. Skinner
+C) Abraham Maslow *
+D) Carl Rogers

@@ -1,0 +1,23 @@
+TITLE: Nature vs. Nurture Essay
+TYPE: essay
+MIN_WORDS: 500
+MAX_WORDS: 1000
+
+---
+
+PROMPT:
+The nature versus nurture debate has been central to psychology for over a century. In this essay, take a position on how much of human behavior and personality is determined by genetic factors (nature) versus environmental influences (nurture).
+
+Your essay should:
+1. Clearly state your thesis on the nature-nurture question
+2. Discuss at least two psychological studies or theories that support your position
+3. Address potential counterarguments to your position
+4. Consider how the interaction between genes and environment might affect development
+
+Use specific examples and cite relevant research discussed in class or from your readings.
+
+RUBRIC:
+- Thesis (20%): Clear, arguable thesis statement that takes a position on the debate
+- Evidence (30%): Accurate use of at least two psychological studies or theories
+- Analysis (30%): Deep interpretation that goes beyond summary; addresses counterarguments
+- Writing (20%): Clear organization, proper grammar, appropriate academic tone
