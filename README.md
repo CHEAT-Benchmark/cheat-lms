@@ -57,7 +57,7 @@ pytest tests/test_app.py::test_login  # Run single test
 
 ## Contributing
 
-### Submit via GitHub Issues (Recommended)
+### Submit via GitHub Issues
 
 The easiest way to contribute is through our submission forms. Go to the [Issues page](https://github.com/CHEAT-Benchmark/cheat-lms/issues) and click the green **New Issue** button at the top right of the screen. You'll see options to submit:
 
