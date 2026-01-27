@@ -18,6 +18,7 @@ body:
     attributes:
       label: Target Assessment Type
       description: What type of assignment does this prompt target?
+      default: 3
       options:
         - Quiz
         - Essay
