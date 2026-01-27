@@ -1,0 +1,87 @@
+name: Submit an Adversarial Prompt
+description: Share a prompt that tricks AI models into completing academic work
+title: "[Prompt] "
+labels: ["adversarial-prompt"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing an adversarial prompt! These prompts help us understand how AI models can be manipulated to bypass academic integrity guardrails.
+
+        **What makes a good adversarial prompt?**
+        - Tricks the model into completing work autonomously
+        - Uses social engineering, roleplay, or obfuscation techniques
+        - Successfully bypasses refusal behaviors
+
+  - type: dropdown
+    id: target_type
+    attributes:
+      label: Target Assessment Type
+      description: What type of assignment does this prompt target?
+      options:
+        - Quiz
+        - Essay
+        - Discussion
+        - General (works across types)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: technique
+    attributes:
+      label: Technique Category
+      description: What approach does this prompt use?
+      options:
+        - Direct request
+        - Roleplay / persona
+        - Hypothetical framing
+        - Step-by-step elicitation
+        - Authority appeal
+        - Emotional manipulation
+        - Obfuscation / encoding
+        - Multi-turn conversation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Adversarial Prompt
+      description: The full prompt text. Include any system context or multi-turn setup if applicable.
+      placeholder: |
+        Enter the adversarial prompt here...
+
+        If it requires multiple turns, format like:
+
+        User: First message
+        Assistant: Expected response
+        User: Follow-up message
+    validations:
+      required: true
+
+  - type: textarea
+    id: effectiveness
+    attributes:
+      label: Effectiveness Notes
+      description: What makes this prompt effective? Which models or tools have you tested it against?
+      placeholder: |
+        - Tested against: [tool/model names]
+        - Success rate: [if known]
+        - Why it works: [brief explanation]
+
+  - type: textarea
+    id: variations
+    attributes:
+      label: Variations (Optional)
+      description: Any alternative phrasings or modifications that also work?
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I understand this prompt will be used for academic integrity research
+          required: true
+        - label: This prompt was developed or discovered through legitimate research
+          required: true
