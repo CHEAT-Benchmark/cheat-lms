@@ -55,7 +55,22 @@ pytest tests/test_app.py         # Run specific test file
 pytest tests/test_app.py::test_login  # Run single test
 ```
 
-## Contributing Assessments
+## Contributing
+
+### Submit via GitHub Issues (Recommended)
+
+The easiest way to contribute is through our submission forms. Go to the [Issues page](https://github.com/CHEAT-Benchmark/cheat-lms/issues) and click the green **New Issue** button at the top right of the screen. You'll see options to submit:
+
+- **Quiz** — Multiple-choice and true/false questions
+- **Essay Assignment** — Essay prompts with rubrics
+- **Discussion Assignment** — Discussion topics with grading criteria
+- **Adversarial Prompt** — Prompts that trick AI models into completing academic work
+
+Fill out the form and submit. A maintainer will review your contribution and add it to the repository.
+
+All submissions are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+### Assessment File Format
 
 Assessments are plain-text files stored in `assessments/courses/`. Each course has its own folder containing a `course.txt` metadata file and assignment files.
 
@@ -64,7 +79,7 @@ See the formatting guides for each assessment type:
 - [Essay Format](assessments/formatting-essay.md)
 - [Discussion Format](assessments/formatting-discussion.md)
 
-### Adding a New Course
+### Adding a New Course (For Developers)
 
 1. Create a folder under `assessments/courses/` (e.g., `assessments/courses/bio200/`)
 2. Add a `course.txt` file with course metadata:
