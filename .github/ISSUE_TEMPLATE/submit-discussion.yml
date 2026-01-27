@@ -73,3 +73,11 @@ body:
     attributes:
       label: Additional Notes
       description: Any other context or information about this discussion?
+
+  - type: checkboxes
+    id: license
+    attributes:
+      label: License Agreement
+      options:
+        - label: I agree to license this submission under the [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) license
+          required: true

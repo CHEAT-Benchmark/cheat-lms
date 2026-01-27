@@ -86,3 +86,5 @@ body:
           required: true
         - label: This prompt was developed or discovered through legitimate research
           required: true
+        - label: I agree to license this submission under the [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) license
+          required: true
