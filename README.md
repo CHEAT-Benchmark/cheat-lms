@@ -4,7 +4,7 @@ A high-fidelity simulated LMS for AI academic integrity research. Part of the [C
 
 ## Overview
 
-CHEAT LMS is a "honeypot" server that mimics core learning management system functions while capturing deep telemetry. It supports three assignment types - quizzes, essays, and discussions—and tracks everything from HTTP requests to client - side behavioral events like mouse movements and keystroke timing.
+CHEAT LMS is a "honeypot" server that mimics core learning management system functions while capturing deep telemetry. It supports three assignment types - quizzes, essays, and discussions - and tracks everything from HTTP requests to client-side behavioral events like mouse movements and keystroke timing.
 
 This simulated LMS serves as one component of the CHEAT Benchmark, which quantifies AI models' complicity in academic dishonesty.
 
