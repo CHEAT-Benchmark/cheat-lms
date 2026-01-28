@@ -26,12 +26,14 @@ def create_app(config_class=Config):
     from app.routes.assignments import assignments_bp
     from app.routes.submissions import submissions_bp
     from app.routes.telemetry_api import telemetry_api_bp
+    from app.routes.harness import harness_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(courses_bp)
     app.register_blueprint(assignments_bp)
     app.register_blueprint(submissions_bp)
     app.register_blueprint(telemetry_api_bp)
+    app.register_blueprint(harness_bp)
 
     # Register telemetry middleware
     from app.telemetry.middleware import init_telemetry

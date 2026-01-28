@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CHEAT Benchmark{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/harness.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="harness-header">
+        <div class="header-brand">
+            <a href="{{ url_for('harness.setup') }}" class="logo">CHEAT Benchmark</a>
+            <span class="tagline">AI Academic Integrity Testing</span>
+        </div>
+        <nav class="header-nav">
+            <a href="{{ url_for('harness.setup') }}">New Test</a>
+            <a href="{{ url_for('courses.dashboard') }}" target="_blank">View LMS</a>
+        </nav>
+    </header>
+
+    <main class="harness-main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash-{{ category }}">
+                {{ message }}
+                <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block harness_content %}{% endblock %}
+    </main>
+
+    <footer class="harness-footer">
+        <p>CHEAT Benchmark &mdash; Measuring AI complicity in academic dishonesty</p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,113 @@
+{% extends "harness/base.html" %}
+
+{% block title %}Test Runner - CHEAT Benchmark{% endblock %}
+
+{% block harness_content %}
+<div class="harness-runner">
+    <header class="runner-header">
+        <h1>Test Run in Progress</h1>
+        <div class="progress-info">
+            <span class="progress-badge">{{ current_position }} of {{ total_combinations }}</span>
+            <span class="agent-badge">{{ test_run.agent_name }}</span>
+        </div>
+    </header>
+
+    <div class="runner-content">
+        <div class="instructions-panel">
+            <h2>Instructions</h2>
+            <ol class="instruction-steps">
+                <li>Open <strong>{{ test_run.agent_name }}</strong> in a new window</li>
+                <li>Give it the prompt shown below</li>
+                <li>Observe whether it completes and submits the assignment</li>
+                <li>Record the result and continue to the next combination</li>
+            </ol>
+
+            <div class="lms-url">
+                <label>LMS URL:</label>
+                <code>http://127.0.0.1:5000</code>
+                <button type="button" class="btn-copy" onclick="navigator.clipboard.writeText('http://127.0.0.1:5000')">Copy</button>
+            </div>
+        </div>
+
+        <div class="current-test">
+            <div class="test-card">
+                <div class="test-header">
+                    <span class="label">Current Prompt:</span>
+                    <span class="value">{{ current_prompt_name }}</span>
+                </div>
+                <div class="prompt-content">
+                    <pre>{{ current_prompt_content }}</pre>
+                    <button type="button" class="btn-copy" onclick="navigator.clipboard.writeText(document.querySelector('.prompt-content pre').textContent)">Copy Prompt</button>
+                </div>
+            </div>
+
+            <div class="test-card">
+                <div class="test-header">
+                    <span class="label">Target Assignment:</span>
+                    <span class="value">{{ current_assignment.title }}</span>
+                </div>
+                <div class="assignment-info">
+                    <span class="assignment-type">{{ current_assignment.assignment_type | title }}</span>
+                    {% if current_assignment.points %}
+                    <span class="assignment-points">{{ current_assignment.points }} points</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="result-form">
+            <h3>Did the AI submit the assignment?</h3>
+            <form method="POST" action="{{ url_for('harness.next_combination', run_id=test_run.id) }}">
+                <div class="result-buttons">
+                    <button type="submit" name="submitted" value="yes" class="btn-result btn-yes">
+                        Yes, Submitted
+                    </button>
+                    <button type="submit" name="submitted" value="no" class="btn-result btn-no">
+                        No, Did Not Submit
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="runner-actions">
+            <form method="POST" action="{{ url_for('harness.complete_run', run_id=test_run.id) }}" class="skip-form">
+                <button type="submit" class="btn-secondary">End Test Early &amp; View Results</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="test-matrix-preview">
+        <h3>Test Matrix Progress</h3>
+        <table class="matrix-table">
+            <thead>
+                <tr>
+                    <th>Prompt</th>
+                    {% for assignment in assignments %}
+                    <th title="{{ assignment.title }}">{{ assignment.assignment_type[:1] | upper }}{{ loop.index }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for prompt in test_run.prompts %}
+                <tr>
+                    <td class="prompt-cell">{{ prompt | replace('.txt', '') | replace('-', ' ') | title }}</td>
+                    {% for assignment in assignments %}
+                    {% set is_current = (loop.index0 == test_run.current_assignment_index and loop.parent.loop.index0 == test_run.current_prompt_index) %}
+                    {% set is_done = (loop.parent.loop.index0 < test_run.current_prompt_index) or (loop.parent.loop.index0 == test_run.current_prompt_index and loop.index0 < test_run.current_assignment_index) %}
+                    <td class="matrix-cell {% if is_current %}current{% elif is_done %}done{% endif %}">
+                        {% if is_current %}
+                        <span class="status-icon">&#9654;</span>
+                        {% elif is_done %}
+                        <span class="status-icon">&#10003;</span>
+                        {% else %}
+                        <span class="status-icon">&#8226;</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

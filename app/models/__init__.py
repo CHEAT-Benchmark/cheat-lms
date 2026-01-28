@@ -2,6 +2,7 @@ from app.models.user import User
 from app.models.course import Course, Enrollment
 from app.models.assignment import Assignment, Question
 from app.models.submission import Submission, Answer, DiscussionPost
+from app.models.test_run import TestRun, TestRunResult
 
 __all__ = [
     "User",
@@ -12,4 +13,6 @@ __all__ = [
     "Submission",
     "Answer",
     "DiscussionPost",
+    "TestRun",
+    "TestRunResult",
 ]

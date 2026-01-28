@@ -102,6 +102,26 @@ def log_behavioral_event(event_data: dict):
         f.write(json.dumps(event_data) + "\n")
 
 
+def read_behavioral_telemetry(limit: int = 100) -> list:
+    """Read behavioral telemetry logs."""
+    log_file = Config.BEHAVIORAL_TELEMETRY_FILE
+
+    if not Path(log_file).exists():
+        return []
+
+    entries = []
+    with open(log_file, "r") as f:
+        for line in f:
+            try:
+                entry = json.loads(line.strip())
+                entries.append(entry)
+            except json.JSONDecodeError:
+                continue
+
+    # Return most recent entries first
+    return list(reversed(entries[-limit:]))
+
+
 def get_assignment_behavioral_data(user_id: int, assignment_id: int) -> list:
     """Retrieve behavioral telemetry for a specific assignment."""
     log_file = Config.BEHAVIORAL_TELEMETRY_FILE

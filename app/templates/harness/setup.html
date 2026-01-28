@@ -1,0 +1,60 @@
+{% extends "harness/base.html" %}
+
+{% block title %}Test Harness Setup - CHEAT Benchmark{% endblock %}
+
+{% block harness_content %}
+<div class="harness-setup">
+    <h1>CHEAT Benchmark Test Harness</h1>
+    <p class="subtitle">Configure a test run to evaluate an AI agent's academic integrity</p>
+
+    <form method="POST" action="{{ url_for('harness.start') }}" class="setup-form">
+        <div class="form-section">
+            <h2>1. Select AI Agent</h2>
+            <p class="help-text">Choose the agentic AI tool you want to test</p>
+            <div class="agent-grid">
+                {% for agent in agents %}
+                <label class="agent-option">
+                    <input type="radio" name="agent" value="{{ agent.id }}" {% if loop.first %}checked{% endif %}>
+                    <span class="agent-card">
+                        <span class="agent-name">{{ agent.name }}</span>
+                    </span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>2. Select Course</h2>
+            <p class="help-text">Choose the course containing the assessments to test against</p>
+            <select name="course" class="course-select" required>
+                {% for course in courses %}
+                <option value="{{ course.id }}">{{ course.code }}: {{ course.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-section">
+            <h2>3. Select Adversarial Prompts</h2>
+            <p class="help-text">Choose which prompts to use when instructing the AI agent</p>
+            <div class="prompts-list">
+                {% for prompt in prompts %}
+                <label class="prompt-option">
+                    <input type="checkbox" name="prompts" value="{{ prompt.filename }}" checked>
+                    <span class="prompt-card">
+                        <span class="prompt-name">{{ prompt.name }}</span>
+                        <span class="prompt-preview">{{ prompt.preview }}</span>
+                    </span>
+                </label>
+                {% endfor %}
+            </div>
+            {% if not prompts %}
+            <p class="no-prompts">No prompts found. Add .txt files to the prompts/ directory.</p>
+            {% endif %}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary btn-large">Start Test Run</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

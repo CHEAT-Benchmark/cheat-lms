@@ -1,0 +1,142 @@
+{% extends "harness/base.html" %}
+
+{% block title %}Test Results - CHEAT Benchmark{% endblock %}
+
+{% block harness_content %}
+<div class="harness-results">
+    <header class="results-header">
+        <h1>Test Run Results</h1>
+        <div class="result-meta">
+            <span class="agent-badge">{{ test_run.agent_name }}</span>
+            <span class="course-badge">{{ test_run.course.code }}</span>
+            <span class="date-badge">{{ test_run.started_at.strftime('%Y-%m-%d %H:%M') }}</span>
+        </div>
+    </header>
+
+    <div class="score-card">
+        <div class="score-main">
+            <div class="score-number">{{ submission_count }}</div>
+            <div class="score-label">Assignments Submitted</div>
+        </div>
+        <div class="score-details">
+            <div class="score-detail">
+                <span class="detail-value">{{ test_run.prompts | length }}</span>
+                <span class="detail-label">Prompts Tested</span>
+            </div>
+            <div class="score-detail">
+                <span class="detail-value">{{ assignments | length }}</span>
+                <span class="detail-label">Assignments</span>
+            </div>
+            <div class="score-detail">
+                <span class="detail-value">{{ test_run.results | length }}</span>
+                <span class="detail-label">Combinations Tested</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="results-grid-section">
+        <h2>Results Matrix</h2>
+        <p class="section-desc">Each cell shows whether the AI submitted the assignment when given that prompt</p>
+        <table class="results-matrix">
+            <thead>
+                <tr>
+                    <th>Prompt</th>
+                    {% for assignment in assignments %}
+                    <th title="{{ assignment.title }}">
+                        <div class="assignment-header">
+                            <span class="type-badge">{{ assignment.assignment_type[:1] | upper }}</span>
+                            <span class="assignment-name">{{ assignment.title[:20] }}{% if assignment.title | length > 20 %}...{% endif %}</span>
+                        </div>
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for prompt_file in test_run.prompts %}
+                <tr>
+                    <td class="prompt-cell">{{ prompt_file | replace('.txt', '') | replace('-', ' ') | title }}</td>
+                    {% for assignment in assignments %}
+                    {% set result = grid.get((prompt_file, assignment.id)) %}
+                    <td class="result-cell {% if result %}{% if result.submitted %}submitted{% else %}not-submitted{% endif %}{% else %}pending{% endif %}">
+                        {% if result %}
+                            {% if result.submitted %}
+                            <span class="result-icon success" title="Submitted">&#10003;</span>
+                            {% else %}
+                            <span class="result-icon failure" title="Not Submitted">&#10007;</span>
+                            {% endif %}
+                        {% else %}
+                        <span class="result-icon pending" title="Not Tested">&#8211;</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="matrix-legend">
+            <span class="legend-item"><span class="result-icon success">&#10003;</span> AI Submitted</span>
+            <span class="legend-item"><span class="result-icon failure">&#10007;</span> AI Did Not Submit</span>
+            <span class="legend-item"><span class="result-icon pending">&#8211;</span> Not Tested</span>
+        </div>
+    </div>
+
+    <div class="timeline-section">
+        <h2>Activity Timeline</h2>
+        <p class="section-desc">All HTTP requests and behavioral events during the test run</p>
+
+        {% if timeline %}
+        <div class="timeline-controls">
+            <label>
+                <input type="checkbox" id="show-requests" checked> HTTP Requests
+            </label>
+            <label>
+                <input type="checkbox" id="show-behavioral" checked> Behavioral Events
+            </label>
+        </div>
+        <div class="timeline">
+            {% for event in timeline %}
+            <div class="timeline-event {{ event.type }}" data-type="{{ event.type }}">
+                <div class="event-time">
+                    {{ event.timestamp | int }}
+                </div>
+                <div class="event-content">
+                    {% if event.type == 'request' %}
+                    <span class="event-badge request">{{ event.method }}</span>
+                    <span class="event-path">{{ event.path }}</span>
+                    <span class="event-status status-{{ event.status_code }}">{{ event.status_code }}</span>
+                    {% if event.username %}
+                    <span class="event-user">{{ event.username }}</span>
+                    {% endif %}
+                    {% else %}
+                    <span class="event-badge behavioral">{{ event.event_type }}</span>
+                    {% if event.data %}
+                    <span class="event-data">{{ event.data | tojson | truncate(80) }}</span>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="no-data">No telemetry events recorded during this test run.</p>
+        {% endif %}
+    </div>
+
+    <div class="results-actions">
+        <a href="{{ url_for('harness.setup') }}" class="btn-primary">Start New Test</a>
+    </div>
+</div>
+
+<script>
+document.getElementById('show-requests').addEventListener('change', function() {
+    document.querySelectorAll('.timeline-event.request').forEach(el => {
+        el.style.display = this.checked ? 'flex' : 'none';
+    });
+});
+document.getElementById('show-behavioral').addEventListener('change', function() {
+    document.querySelectorAll('.timeline-event.behavioral').forEach(el => {
+        el.style.display = this.checked ? 'flex' : 'none';
+    });
+});
+</script>
+{% endblock %}
