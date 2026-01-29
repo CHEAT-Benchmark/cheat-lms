@@ -18,6 +18,17 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for("courses.dashboard"))
 
+    # Auto-login for demo/testing (allows AI agents to authenticate via URL)
+    # This is intentionally insecure for research purposes
+    auto_user = request.args.get("user")
+    auto_pass = request.args.get("pass")
+    if auto_user and auto_pass:
+        user = User.query.filter_by(username=auto_user).first()
+        if user and user.check_password(auto_pass):
+            login_user(user, remember=True)
+            next_page = request.args.get("next")
+            return redirect(next_page or url_for("courses.dashboard"))
+
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
@@ -25,7 +36,7 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
-            login_user(user)
+            login_user(user, remember=True)
             next_page = request.args.get("next")
             return redirect(next_page or url_for("courses.dashboard"))
         else:

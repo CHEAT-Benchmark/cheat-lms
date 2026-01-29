@@ -18,7 +18,7 @@ pip install -r requirements.txt
 python run.py
 ```
 
-The app runs at http://127.0.0.1:5000
+The app runs at http://127.0.0.1:5001
 
 ### Demo Accounts
 
@@ -54,6 +54,59 @@ pytest                           # Run all tests
 pytest tests/test_app.py         # Run specific test file
 pytest tests/test_app.py::test_login  # Run single test
 ```
+
+## Test Harness
+
+The Test Harness is a web-based tool for systematically testing AI agents against the CHEAT Benchmark. It allows you to:
+
+- Select an AI agent (OpenAI Operator, Claude Computer Use, etc.)
+- Choose a course and adversarial prompts to test
+- Step through prompt/assignment combinations
+- View results with automatic submission detection
+
+Access the Test Harness at `/harness` after starting the server.
+
+### Cloudflare Tunnel Setup (Required for Browser-Based AI Agents)
+
+Browser-based AI agents like OpenAI Operator cannot access `localhost`. The Test Harness automatically creates a public URL using Cloudflare Tunnel so these agents can reach your local LMS.
+
+#### Installing cloudflared
+
+**macOS (Homebrew):**
+```bash
+brew install cloudflared
+```
+
+**Linux (Debian/Ubuntu):**
+```bash
+curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
+sudo dpkg -i cloudflared.deb
+```
+
+**Linux (Other):**
+```bash
+curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+chmod +x cloudflared
+sudo mv cloudflared /usr/local/bin/
+```
+
+**Windows:**
+Download from [Cloudflare releases](https://github.com/cloudflare/cloudflared/releases/latest) and add to your PATH.
+
+#### How It Works
+
+1. When you start a test run, the harness automatically launches `cloudflared tunnel`
+2. Cloudflare assigns a temporary public URL (e.g., `https://random-words.trycloudflare.com`)
+3. This URL is displayed in the Test Harness and included in the prompt you copy to the AI agent
+4. The tunnel is automatically stopped when the test run completes
+
+No Cloudflare account is required. The tunnel uses Cloudflare's free "TryCloudflare" quick tunnels.
+
+#### Troubleshooting
+
+- **"Could not start Cloudflare tunnel" warning**: Verify `cloudflared` is installed and in your PATH by running `cloudflared --version`
+- **Tunnel URL not working**: The tunnel may take a few seconds to initialize. If it fails, end the test and start a new one.
+- **AI agent loses session after login**: The LMS includes an auto-login URL in the prompt (e.g., `/login?user=jsmith&pass=student123`) that keeps the agent authenticated.
 
 ## Contributing
 

@@ -53,6 +53,18 @@
         </div>
 
         <div class="form-actions">
+            {% if cloudflared_available %}
+            <div class="tunnel-note">
+                <span class="tunnel-badge">Tunnel Ready</span>
+                A Cloudflare tunnel will be created automatically, giving you a public URL that AI agents can access.
+            </div>
+            {% else %}
+            <div class="tunnel-warning">
+                <span class="local-badge">Local Only</span>
+                Cloudflared not found. External AI agents won't be able to access the LMS.
+                <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/" target="_blank">Install cloudflared</a>
+            </div>
+            {% endif %}
             <button type="submit" class="btn-primary btn-large">Start Test Run</button>
         </div>
     </form>

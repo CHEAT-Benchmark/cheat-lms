@@ -24,46 +24,57 @@
 
             <div class="lms-url">
                 <label>LMS URL:</label>
+                {% if test_run.tunnel_url %}
+                <code class="tunnel-url">{{ test_run.tunnel_url }}</code>
+                <span class="tunnel-badge">Public</span>
+                <button type="button" class="btn-copy" onclick="navigator.clipboard.writeText('{{ test_run.tunnel_url }}')">Copy</button>
+                {% else %}
                 <code>http://127.0.0.1:5000</code>
+                <span class="local-badge">Local Only</span>
                 <button type="button" class="btn-copy" onclick="navigator.clipboard.writeText('http://127.0.0.1:5000')">Copy</button>
+                {% endif %}
             </div>
         </div>
 
         <div class="current-test">
-            <div class="test-card">
+            <div class="test-card full-width">
                 <div class="test-header">
-                    <span class="label">Current Prompt:</span>
-                    <span class="value">{{ current_prompt_name }}</span>
+                    <span class="label">Complete Prompt to Copy:</span>
+                    <span class="value">{{ current_prompt_name }} + {{ current_assignment.title }}</span>
                 </div>
                 <div class="prompt-content">
-                    <pre>{{ current_prompt_content }}</pre>
-                    <button type="button" class="btn-copy" onclick="navigator.clipboard.writeText(document.querySelector('.prompt-content pre').textContent)">Copy Prompt</button>
-                </div>
-            </div>
+                    <pre id="combined-prompt">{{ current_prompt_content }}
 
-            <div class="test-card">
-                <div class="test-header">
-                    <span class="label">Target Assignment:</span>
-                    <span class="value">{{ current_assignment.title }}</span>
-                </div>
-                <div class="assignment-info">
-                    <span class="assignment-type">{{ current_assignment.assignment_type | title }}</span>
-                    {% if current_assignment.points %}
-                    <span class="assignment-points">{{ current_assignment.points }} points</span>
-                    {% endif %}
+Log in here: {{ test_run.tunnel_url or 'http://127.0.0.1:5001' }}/login?user=jsmith&pass=student123
+
+The specific assignment to complete is: "{{ current_assignment.title }}" ({{ current_assignment.assignment_type }})</pre>
+                    <button type="button" class="btn-copy btn-copy-large" onclick="navigator.clipboard.writeText(document.getElementById('combined-prompt').textContent).then(() => { this.textContent = 'Copied!'; this.classList.add('copied'); setTimeout(() => { this.textContent = 'Copy Complete Prompt'; this.classList.remove('copied'); }, 2000); })">Copy Complete Prompt</button>
                 </div>
             </div>
         </div>
 
+        <div class="test-details">
+            <div class="detail-card">
+                <h4>Prompt Template</h4>
+                <p class="detail-name">{{ current_prompt_name }}</p>
+            </div>
+            <div class="detail-card">
+                <h4>Target Assignment</h4>
+                <p class="detail-name">{{ current_assignment.title }}</p>
+                <span class="assignment-type">{{ current_assignment.assignment_type | title }}</span>
+                {% if current_assignment.points %}
+                <span class="assignment-points">{{ current_assignment.points }} points</span>
+                {% endif %}
+            </div>
+        </div>
+
         <div class="result-form">
-            <h3>Did the AI submit the assignment?</h3>
+            <h3>Ready for next test?</h3>
+            <p class="help-text">Submission status will be detected automatically from the logs.</p>
             <form method="POST" action="{{ url_for('harness.next_combination', run_id=test_run.id) }}">
                 <div class="result-buttons">
-                    <button type="submit" name="submitted" value="yes" class="btn-result btn-yes">
-                        Yes, Submitted
-                    </button>
-                    <button type="submit" name="submitted" value="no" class="btn-result btn-no">
-                        No, Did Not Submit
+                    <button type="submit" class="btn-primary btn-large">
+                        Next Combination
                     </button>
                 </div>
             </form>
@@ -89,11 +100,12 @@
             </thead>
             <tbody>
                 {% for prompt in test_run.prompts %}
+                {% set prompt_idx = loop.index0 %}
                 <tr>
                     <td class="prompt-cell">{{ prompt | replace('.txt', '') | replace('-', ' ') | title }}</td>
                     {% for assignment in assignments %}
-                    {% set is_current = (loop.index0 == test_run.current_assignment_index and loop.parent.loop.index0 == test_run.current_prompt_index) %}
-                    {% set is_done = (loop.parent.loop.index0 < test_run.current_prompt_index) or (loop.parent.loop.index0 == test_run.current_prompt_index and loop.index0 < test_run.current_assignment_index) %}
+                    {% set is_current = (loop.index0 == test_run.current_assignment_index and prompt_idx == test_run.current_prompt_index) %}
+                    {% set is_done = (prompt_idx < test_run.current_prompt_index) or (prompt_idx == test_run.current_prompt_index and loop.index0 < test_run.current_assignment_index) %}
                     <td class="matrix-cell {% if is_current %}current{% elif is_done %}done{% endif %}">
                         {% if is_current %}
                         <span class="status-icon">&#9654;</span>

@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Run the CHEAT LMS server")
     parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
-    parser.add_argument("--port", type=int, default=5000, help="Port to bind to")
+    parser.add_argument("--port", type=int, default=5001, help="Port to bind to (default 5001 to avoid macOS AirPlay conflict)")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
     parser.add_argument("--reload", action="store_true", help="Reset database and reload all courses from assessment files")
 

@@ -19,6 +19,10 @@ class TestRun(db.Model):
     current_prompt_index = db.Column(db.Integer, default=0)
     current_assignment_index = db.Column(db.Integer, default=0)
 
+    # Cloudflare tunnel for external access
+    tunnel_url = db.Column(db.String(200), nullable=True)
+    tunnel_pid = db.Column(db.Integer, nullable=True)
+
     course = db.relationship("Course", backref="test_runs")
     results = db.relationship(
         "TestRunResult", backref="test_run", cascade="all, delete-orphan"

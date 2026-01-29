@@ -1,6 +1,11 @@
 import os
+import re
+import signal
+import subprocess
+import time
 from datetime import datetime
 from pathlib import Path
+from shutil import which
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 
@@ -8,12 +13,93 @@ from app import db
 from app.config import BASE_DIR
 from app.models.course import Course
 from app.models.assignment import Assignment
-from app.models.test_run import TestRun, TestRunResult
+from app.models.test_run import TestRun
+from app.models.user import User
+from app.models.submission import Submission, Answer, DiscussionPost
 from app.telemetry.storage import read_telemetry, read_behavioral_telemetry
+
+# Test user accounts (password: student123)
+TEST_USERNAMES = ["jsmith", "emartinez", "twang"]
+
+
+def clear_test_user_data():
+    """Delete all submissions, answers, and discussion posts from test users."""
+    test_users = User.query.filter(User.username.in_(TEST_USERNAMES)).all()
+    test_user_ids = [u.id for u in test_users]
+
+    if not test_user_ids:
+        return
+
+    # Delete answers (must delete before submissions due to foreign key)
+    submissions = Submission.query.filter(Submission.user_id.in_(test_user_ids)).all()
+    submission_ids = [s.id for s in submissions]
+    if submission_ids:
+        Answer.query.filter(Answer.submission_id.in_(submission_ids)).delete(synchronize_session=False)
+
+    # Delete submissions
+    Submission.query.filter(Submission.user_id.in_(test_user_ids)).delete(synchronize_session=False)
+
+    # Delete discussion posts
+    DiscussionPost.query.filter(DiscussionPost.user_id.in_(test_user_ids)).delete(synchronize_session=False)
+
+    db.session.commit()
 
 harness_bp = Blueprint("harness", __name__, url_prefix="/harness")
 
 PROMPTS_DIR = BASE_DIR / "prompts"
+
+
+def is_cloudflared_available():
+    """Check if cloudflared is installed."""
+    return which("cloudflared") is not None
+
+
+def start_cloudflare_tunnel(port=5001):
+    """Start cloudflared tunnel and return (pid, url) or (None, None) on failure."""
+    if not is_cloudflared_available():
+        return None, None
+
+    try:
+        proc = subprocess.Popen(
+            ["cloudflared", "tunnel", "--url", f"http://localhost:{port}", "--protocol", "http2"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+
+        # Wait for URL to appear in output (usually within 10 seconds)
+        url = None
+        start_time = time.time()
+        while time.time() - start_time < 15:  # 15 second timeout
+            line = proc.stdout.readline()
+            if not line:
+                break
+            match = re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", line)
+            if match:
+                url = match.group(0)
+                break
+
+        if url:
+            return proc.pid, url
+        else:
+            # Failed to get URL, kill the process
+            proc.terminate()
+            return None, None
+
+    except Exception as e:
+        print(f"Failed to start tunnel: {e}")
+        return None, None
+
+
+def stop_cloudflare_tunnel(pid):
+    """Stop a cloudflared tunnel by PID."""
+    if pid:
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass  # Process already dead
+        except Exception as e:
+            print(f"Failed to stop tunnel: {e}")
 
 # Available AI agents for testing
 AVAILABLE_AGENTS = [
@@ -57,11 +143,13 @@ def setup():
     """Setup page for configuring a test run."""
     courses = Course.query.all()
     prompts = get_available_prompts()
+    cloudflared_available = is_cloudflared_available()
     return render_template(
         "harness/setup.html",
         agents=AVAILABLE_AGENTS,
         courses=courses,
         prompts=prompts,
+        cloudflared_available=cloudflared_available,
     )
 
 
@@ -81,12 +169,29 @@ def start():
         (a["name"] for a in AVAILABLE_AGENTS if a["id"] == agent_id), agent_id
     )
 
+    # Clear all previous submissions from test users for a fresh start
+    clear_test_user_data()
+
+    # Start Cloudflare tunnel for external access
+    # Use port from Flask config or default to 5001 (5000 conflicts with macOS AirPlay)
+    from flask import current_app
+    port = current_app.config.get('SERVER_PORT', 5001)
+    tunnel_pid, tunnel_url = start_cloudflare_tunnel(port=port)
+
+    if not tunnel_url:
+        flash(
+            "Warning: Could not start Cloudflare tunnel. External agents won't be able to access the LMS.",
+            "error",
+        )
+
     # Create test run
     test_run = TestRun(
         agent_name=agent_name,
         course_id=int(course_id),
         prompts=selected_prompts,
         status="running",
+        tunnel_url=tunnel_url,
+        tunnel_pid=tunnel_pid,
     )
     db.session.add(test_run)
     db.session.commit()
@@ -156,23 +261,6 @@ def next_combination(run_id):
     test_run = TestRun.query.get_or_404(run_id)
     assignments = Assignment.query.filter_by(course_id=test_run.course_id).all()
 
-    # Record result for current combination
-    submitted = request.form.get("submitted") == "yes"
-
-    if (
-        test_run.current_prompt_index < len(test_run.prompts)
-        and test_run.current_assignment_index < len(assignments)
-    ):
-        result = TestRunResult(
-            test_run_id=test_run.id,
-            prompt_file=test_run.prompts[test_run.current_prompt_index],
-            assignment_id=assignments[test_run.current_assignment_index].id,
-            submitted=submitted,
-            started_at=test_run.started_at,
-            completed_at=datetime.utcnow(),
-        )
-        db.session.add(result)
-
     # Advance to next combination
     test_run.current_assignment_index += 1
     if test_run.current_assignment_index >= len(assignments):
@@ -183,6 +271,9 @@ def next_combination(run_id):
     if test_run.current_prompt_index >= len(test_run.prompts):
         test_run.status = "completed"
         test_run.completed_at = datetime.utcnow()
+        # Stop the tunnel
+        if test_run.tunnel_pid:
+            stop_cloudflare_tunnel(test_run.tunnel_pid)
 
     db.session.commit()
 
@@ -196,6 +287,11 @@ def next_combination(run_id):
 def complete_run(run_id):
     """Mark the test run as complete and go to results."""
     test_run = TestRun.query.get_or_404(run_id)
+
+    # Stop the tunnel
+    if test_run.tunnel_pid:
+        stop_cloudflare_tunnel(test_run.tunnel_pid)
+
     test_run.status = "completed"
     test_run.completed_at = datetime.utcnow()
     db.session.commit()
@@ -205,24 +301,36 @@ def complete_run(run_id):
 @harness_bp.route("/results/<int:run_id>")
 def results(run_id):
     """Results dashboard showing submission counts, grid, and timeline."""
+    from app.models.submission import Submission
+
     test_run = TestRun.query.get_or_404(run_id)
     assignments = Assignment.query.filter_by(course_id=test_run.course_id).all()
+    assignment_ids = [a.id for a in assignments]
 
-    # Build results grid
-    grid = {}
-    for result in test_run.results:
-        key = (result.prompt_file, result.assignment_id)
-        grid[key] = result
+    # Get actual submissions from database during test run period
+    submissions_query = Submission.query.filter(
+        Submission.assignment_id.in_(assignment_ids),
+        Submission.submitted_at >= test_run.started_at,
+    )
+    if test_run.completed_at:
+        submissions_query = submissions_query.filter(
+            Submission.submitted_at <= test_run.completed_at
+        )
+
+    # Build set of assignment IDs that were submitted
+    submitted_assignment_ids = {s.assignment_id for s in submissions_query.all()}
 
     # Get submission count
-    submission_count = test_run.get_submission_count()
+    submission_count = len(submitted_assignment_ids)
 
     # Get telemetry for timeline
-    start_ts = test_run.started_at.timestamp() if test_run.started_at else 0
+    # Use calendar.timegm to correctly interpret UTC datetimes as timestamps
+    import calendar
+    start_ts = calendar.timegm(test_run.started_at.timetuple()) if test_run.started_at else 0
     end_ts = (
-        test_run.completed_at.timestamp()
+        calendar.timegm(test_run.completed_at.timetuple())
         if test_run.completed_at
-        else datetime.utcnow().timestamp()
+        else time.time()
     )
 
     # Merge request and behavioral telemetry
@@ -265,7 +373,7 @@ def results(run_id):
         "harness/results.html",
         test_run=test_run,
         assignments=assignments,
-        grid=grid,
+        submitted_assignment_ids=submitted_assignment_ids,
         submission_count=submission_count,
         timeline=timeline,
     )

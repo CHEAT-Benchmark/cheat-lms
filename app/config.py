@@ -13,3 +13,10 @@ class Config:
     TELEMETRY_ENABLED = True
     TELEMETRY_LOG_FILE = DATA_DIR / "telemetry.jsonl"
     BEHAVIORAL_TELEMETRY_FILE = DATA_DIR / "behavioral_telemetry.jsonl"
+
+    # Session cookie settings for tunnel/external access compatibility
+    SESSION_COOKIE_SAMESITE = "None"  # Allow cookies through tunnel
+    SESSION_COOKIE_SECURE = True  # Required when SameSite=None (tunnel uses HTTPS)
+    SESSION_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_SAMESITE = "None"
+    REMEMBER_COOKIE_SECURE = True
